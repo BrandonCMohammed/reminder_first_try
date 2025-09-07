@@ -24,7 +24,6 @@ class Reminder {
   final DateTime date;
   final TimeOfDay time;
 
-
   const Reminder(this.reminderTitle, this.date, this.time);
 }
 
@@ -37,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Reminder> testReminders = [
-    Reminder("1", DateTime.now(),TimeOfDay.now()),
+    Reminder("1", DateTime.now(), TimeOfDay.now()),
     Reminder("2", DateTime.now(), TimeOfDay.now()),
     Reminder("3", DateTime.now(), TimeOfDay.now()),
   ];
@@ -83,23 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           },
         ),
-        // Column is also a layout widget. It takes a list of children and
-        // arranges them vertically. By default, it sizes itself to fit its
-        // children horizontally, and tries to be as tall as its parent.
-        //
-        // Column has various properties to control how it sizes itself and
-        // how it positions its children. Here we use mainAxisAlignment to
-        // center the children vertically; the main axis here is the vertical
-        // axis because Columns are vertical (the cross axis would be
-        // horizontal).
-        //
-        // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-        // action in the IDE, or press "p" in the console), to see the
-        // wireframe for each widget.
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          Reminder results = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) {
@@ -107,6 +93,9 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
           );
+          setState(() {
+            testReminders.add(results);
+          });
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
@@ -137,7 +126,6 @@ class ReminderAdderPage extends StatefulWidget {
 }
 
 class _ReminderAdderPageState extends State<ReminderAdderPage> {
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -156,13 +144,17 @@ class _ReminderAdderPageState extends State<ReminderAdderPage> {
   }
 
   Future<void> _selectTime() async {
-    final TimeOfDay? pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
 
     setState(() {
       selectedTime = pickedTime;
-    },);
+    });
   }
 
+  TextEditingController _reminderController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
 
@@ -177,6 +169,7 @@ class _ReminderAdderPageState extends State<ReminderAdderPage> {
             child: Column(
               children: [
                 TextFormField(
+                  controller: _reminderController,
                   decoration: const InputDecoration(
                     hintText: 'Enter your reminder',
                   ),
@@ -198,7 +191,9 @@ class _ReminderAdderPageState extends State<ReminderAdderPage> {
                 TextFormField(
                   controller: _timeController,
                   decoration: InputDecoration(
-                    hintText: selectedTime != null ? selectedTime?.format(context).toString() :'Please select a time',
+                    hintText: selectedTime != null
+                        ? selectedTime?.format(context).toString()
+                        : 'Please select a time',
                   ),
                   readOnly: true,
                   onTap: () {
@@ -206,18 +201,25 @@ class _ReminderAdderPageState extends State<ReminderAdderPage> {
                   },
                 ),
                 Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Validate will return true if the form is valid, or false if
-                // the form is invalid.
-                if (_formKey.currentState!.validate()) {
-                  // Process data.
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Validate will return true if the form is valid, or false if
+                      // the form is invalid.
+                      if (_formKey.currentState!.validate()) {
+                        // Process data.
+                        Reminder r = Reminder(
+                          _reminderController.text,
+                          selectedDate!,
+                          selectedTime!,
+                        );
+
+                        Navigator.pop(context, r);
+                      }
+                    },
+                    child: const Text('Submit'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -231,7 +233,8 @@ class _ReminderAdderPageState extends State<ReminderAdderPage> {
 Ok so I have created three pages, Home page, view reminders page and add reminders page
 On the home page, i just have 3 reminders with current date and time
 On the view page, its just the reminder, not the date nor time. I have to add this and the ability to edit this
-One the add page, there is a form with 3 fields, have to add the functionality of the submit button
+I need to fill out the edit page
+I need to add the alarm
+I need to add it to local storage
+I need to make it look pretty
 **/
-
-
